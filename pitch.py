@@ -6,6 +6,7 @@ import os.path
 from pylab import cla, clf, plot, savefig, show
 from aubio import source, pitch
 
+# Represents a single pitch at a single point in time
 class Pitch:
     def __init__(self, pitch, time, intonation=0):
         self.pitch = pitch
@@ -22,8 +23,8 @@ class Pitch:
     def __ne__(self, other):
         return not self == other
 
+# Return a list of pitch objects read from the file
 def read_pitch(filename, chunk):
-
     win_s = chunk # fft size
     hop_s = win_s # hop size
 
@@ -50,10 +51,12 @@ def read_pitch(filename, chunk):
         if read < hop_s: break
 
     # print pitches
+    if len(pitches) == 0: return None
     return pitches
 
+# Filter out values that are higher than limit
 def filter_pitch(pitches, limit):
-    # filter out values that are too high
+    if pitches == None: return None
     filter_pitch = []
 
     for p in pitches:
@@ -62,9 +65,12 @@ def filter_pitch(pitches, limit):
 
     pitches = [p for p in pitches if p not in filter_pitch]
 
+    if len(pitches) == 0: return None
     return pitches
 
+# Create a plot with time (x) and pitches (y) and save it
 def plot_pitch(pitches, name):
+    if pitches == None: return
     # first clear axes and figure
     cla()
     clf()
@@ -83,7 +89,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     filename = sys.argv[1]
-    chunk = int(sys.argv[2]) # 1024
+    chunk = int(sys.argv[2]) # 2048
     limit = int(sys.argv[3]) # 170 works for me, depends on your F0
 
     pitches = read_pitch(filename, chunk)

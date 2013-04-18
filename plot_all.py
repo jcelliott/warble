@@ -2,10 +2,13 @@ import glob
 import sys
 from pitch import read_pitch, filter_pitch, plot_pitch
 
-chunk = int(sys.argv[1])
-limit = int(sys.argv[2])
+# Create graphs of time vs pitch for all files in the given directory
 
-wavs = glob.glob('data/*.wav')
+directory = sys.argv[1]
+chunk = int(sys.argv[2])
+limit = int(sys.argv[3])
+
+wavs = glob.glob(directory + '/*.wav')
 for w in wavs:
     pitches = read_pitch(w, chunk)
     pitches = filter_pitch(pitches, limit)
