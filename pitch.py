@@ -3,20 +3,24 @@
 
 import sys
 import os.path
-from pylab import *
+from pylab import cla, clf, plot, savefig, show
 from aubio import source, pitch
 
 class Pitch:
-    def __init__(self, pitch, time):
+    def __init__(self, pitch, time, intonation=0):
         self.pitch = pitch
         self.time = time
+        self.intonation = intonation
 
-    def __str__(self):
-        return "%f:   %f" % (self.time, self.pitch)
+    # def __str__(self):
+    #     return "%f:\t%f\t%f" % (self.time, self.pitch, self.intonation)
     def __repr__(self):
-        return "%f:   %f\n" % (self.time, self.pitch)
+        return "%f:\t%f\t%d\n" % (self.time, self.pitch, self.intonation)
     def __eq__(self, other):
-        return self.time == other.time and self.pitch == other.pitch
+        return self.time == other.time and self.pitch == other.pitch\
+                and self.intonation == other.intonation
+    def __ne__(self, other):
+        return not self == other
 
 def read_pitch(filename, chunk):
 
@@ -52,9 +56,9 @@ def filter_pitch(pitches, limit):
     # filter out values that are too high
     filter_pitch = []
 
-    for i in range(len(pitches)):
-        if pitches[i].pitch > limit or pitches[i].pitch == 0:
-            filter_pitch.append(pitches[i])
+    for p in pitches:
+        if p.pitch > limit or p.pitch == 0:
+            filter_pitch.append(p)
 
     pitches = [p for p in pitches if p not in filter_pitch]
 
