@@ -7,7 +7,8 @@ limit = int(sys.argv[2])
 
 wavs = glob.glob('data/*.wav')
 for w in wavs:
-    pitches, times = read_pitch(w, chunk)
-    pitches, times = filter_pitch(pitches, times, limit)
-    plot_pitch(pitches, times, w)
+    pitches = read_pitch(w, chunk)
+    pitches = filter_pitch(pitches, limit)
+    plot_pitch(pitches, w)
 
+print "done"

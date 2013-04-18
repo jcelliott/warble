@@ -6,6 +6,17 @@ import os.path
 from pylab import *
 from aubio import source, pitch
 
+class Pitch:
+    def __init__(self, pitch, time):
+        self.pitch = pitch
+        self.time = time
+
+    def __str__(self):
+        return "%f:   %f" % (self.time, self.pitch)
+    def __repr__(self):
+        return "%f:   %f\n" % (self.time, self.pitch)
+    def __eq__(self, other):
+        return self.time == other.time and self.pitch == other.pitch
 
 def read_pitch(filename, chunk):
 
@@ -22,7 +33,7 @@ def read_pitch(filename, chunk):
     pitch_o.set_unit("freq")
 
     pitches = []
-    times = []
+    # times = []
 
     # total number of frames read
     total_frames = 0
@@ -30,37 +41,34 @@ def read_pitch(filename, chunk):
         samples, read = s()
         cur_pitch = pitch_o(samples)[0]
         # print "%f %f" % (total_frames / float(samplerate), pitch)
-        #pitches += [pitches]
-        pitches.append(cur_pitch)
-        times.append(total_frames / float(samplerate))
+        pitches.append(Pitch(cur_pitch, total_frames / float(samplerate)))
         total_frames += read
         if read < hop_s: break
 
     # print pitches
-    return pitches, times
+    return pitches
 
-def filter_pitch(pitches, times, limit):
+def filter_pitch(pitches, limit):
     # filter out values that are too high
-    filters = {}
-    # remove last data point
-    # filters[times[-1]] = pitches [-1]
+    filter_pitch = []
 
     for i in range(len(pitches)):
-        if pitches[i] > limit or pitches[i] == 0:
-            filters[times[i]] = pitches[i]
+        if pitches[i].pitch > limit or pitches[i].pitch == 0:
+            filter_pitch.append(pitches[i])
 
-    for t, p in filters.items():
-        times.remove(t)
-        pitches.remove(p)
+    pitches = [p for p in pitches if p not in filter_pitch]
 
-    return pitches, times
+    return pitches
 
-def plot_pitch(pitches, times, name):
+def plot_pitch(pitches, name):
     # first clear axes and figure
     cla()
     clf()
+    # generate lists from pitch objects
+    times = [p.time for p in pitches]
+    values = [p.pitch for p in pitches]
     # graph pitch
-    plot(times, pitches)
+    plot(times, values)
     savefig(name[:-4])
     # show()
 
@@ -74,7 +82,7 @@ if __name__ == "__main__":
     chunk = int(sys.argv[2]) # 1024
     limit = int(sys.argv[3]) # 170 works for me, depends on your F0
 
-    pitches, times = read_pitch(filename, chunk)
-    pitches, times = filter_pitches(pitches, times, limit)
-    plot_pitch(pitches, times, filename)
+    pitches = read_pitch(filename, chunk)
+    pitches = filter_pitch(pitches, limit)
+    plot_pitch(pitches, filename)
 
