@@ -4,17 +4,17 @@ import pyaudio
 import wave
 import numpy as np
 import sys
+import os.path
 from pylab import *
 
-CHUNK = 4096
 
-def read_pitch(wav):
+def read_pitch(wav, chunk):
     # open up a wave
     wf = wave.open(wav, 'rb')
     swidth = wf.getsampwidth()
     RATE = wf.getframerate()
     # use a Blackman window
-    window = np.blackman(CHUNK)
+    window = np.blackman(chunk)
     # open stream
     p = pyaudio.PyAudio()
     stream = p.open(format =
@@ -24,11 +24,11 @@ def read_pitch(wav):
                     output = True)
 
     # read some data
-    data = wf.readframes(CHUNK)
+    data = wf.readframes(chunk)
     pitches = {}
     time = 0
     # play stream and find the frequency of each chunk
-    while len(data) == CHUNK*swidth:
+    while len(data) == chunk*swidth:
         # write data out to the audio stream
         stream.write(data)
         # unpack the data and times by the hamming window
@@ -44,15 +44,15 @@ def read_pitch(wav):
             y0,y1,y2 = np.log(fftData[which-1:which+2:])
             x1 = (y2 - y0) * .5 / (2 * y1 - y2 - y0)
             # find the frequency and output it
-            freq = (which+x1)*RATE/CHUNK
+            freq = (which+x1)*RATE/chunk
             # print "The freq is %f Hz." % (freq)
             pitches[time] = freq
         else:
-            freq = which*RATE/CHUNK
+            freq = which*RATE/chunk
             # print "The freq is %f Hz." % (freq)
             pitches[time] = freq
         # read some more data
-        data = wf.readframes(CHUNK)
+        data = wf.readframes(chunk)
         time += 1
 
     if data:
@@ -62,15 +62,26 @@ def read_pitch(wav):
 
     return pitches
 
-if __name__ == "__main__":
-    pitch = read_pitch(sys.argv[1])
-
+def plot_pitch(pitch, limit, name):
     # filter out values that are too high
     for k, v in pitch.items():
-        if v > 600:
+        if v > limit:
             del pitch[k]
 
-    # print pitch
+    # first clear axes and figure
+    cla()
+    clf()
+    # graph pitch
     plot(pitch.keys(), pitch.values())
-    show()
+    savefig(name[:-4])
+    # show()
+
+
+if __name__ == "__main__":
+    wavfile = sys.argv[1]
+    chunk = int(sys.argv[2])
+    limit = int(sys.argv[3])
+
+    data = read_pitch(wavfile, chunk)
+    plot_pitch(data, limit, wavfile)
 
