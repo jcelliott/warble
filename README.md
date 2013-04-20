@@ -21,3 +21,11 @@ warble
 * or download latest from repo (0.4.0-alpha)
   * Add libm to linker flags: LDFLAGS=-lm ./waf build
 
+TODO
+====
+
+* add tests!
+* add a real options parser
+* intonation filtering based on time
+* weight pitches based on duration or pitch change
+* smoothing (averaging) filter

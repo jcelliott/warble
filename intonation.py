@@ -113,6 +113,7 @@ if __name__ == "__main__":
     pitches = filter_pitch(pitches, limit)
 
     intonations = detect_intonation(pitches)
+    # print intonations
     intonations = filter_intonation(intonations, threshold)
     # print intonations
 
