@@ -6,6 +6,8 @@ The eventual goal is to be able to detect sentence type
 (declarative, yes/no question, wh-question, tag question, echo question, command, etc.)
 and possibly other things.
 
+The (informal) report I wrote for this project can be found [here](http://jcelliott.github.io/warble/)
+
 ### Dependencies ###
 
 * python (2.7)
